@@ -5,6 +5,7 @@ A complete Spring Boot application with Thymeleaf frontend that integrates Strip
 ## Features
 
 - **Thymeleaf-based checkout page** at `/checkout` with Stripe Elements integration
+- **Predefined subscription plans**: Basic ($30), Pro ($50), Expert ($70)
 - **Stripe PaymentIntent API** integration for secure payments
 - **Webhook handling** for payment confirmations
 - **MySQL database** storage for payment records
@@ -78,6 +79,17 @@ The `Payment` entity includes:
 - `start_date` - Subscription start date (today)
 - `end_date` - Subscription end date (+30 days)
 - `created_at` - Record creation timestamp
+- `subscription_type` - Subscription plan type (BASIC, PRO, EXPERT)
+
+## Subscription Plans
+
+The application offers three predefined subscription plans:
+
+| Plan | Price | Description |
+|------|--------|-------------|
+| **Basic** | $30/month | Perfect for individuals getting started |
+| **Pro** | $50/month | Ideal for growing businesses and teams |
+| **Expert** | $70/month | Advanced features for power users |
 
 ## Stripe Webhook Configuration
 
@@ -122,7 +134,8 @@ src/
 │   │   │   ├── CheckoutController.java
 │   │   │   └── WebhookController.java
 │   │   ├── entity/
-│   │   │   └── Payment.java
+│   │   │   ├── Payment.java
+│   │   │   └── SubscriptionType.java
 │   │   ├── repository/
 │   │   │   └── PaymentRepository.java
 │   │   └── StripePaymentAppApplication.java
