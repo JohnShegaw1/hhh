@@ -1,5 +1,6 @@
 package com.example.stripepaymentapp.controller;
 
+import com.example.stripepaymentapp.entity.SubscriptionType;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -26,6 +27,7 @@ public class CheckoutController {
     @GetMapping("/checkout")
     public String checkout(Model model) {
         model.addAttribute("stripePublishableKey", stripePublishableKey);
+        model.addAttribute("subscriptionTypes", SubscriptionType.values());
         return "checkout";
     }
 
@@ -33,18 +35,20 @@ public class CheckoutController {
     @ResponseBody
     public ResponseEntity<Map<String, String>> createPaymentIntent(
             @RequestParam String email,
-            @RequestParam BigDecimal amount) {
+            @RequestParam String subscriptionType) {
         
         try {
             Stripe.apiKey = stripeSecretKey;
             
-            // Convert amount to cents for Stripe (assuming amount is in dollars)
-            long amountInCents = amount.multiply(new BigDecimal("100")).longValue();
+            // Get subscription type and amount
+            SubscriptionType subType = SubscriptionType.fromString(subscriptionType);
+            long amountInCents = subType.getPriceInCents();
             
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
                     .setCurrency("usd")
                     .putMetadata("email", email)
+                    .putMetadata("subscription_type", subscriptionType)
                     .setAutomaticPaymentMethods(
                         PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                             .setEnabled(true)
@@ -62,6 +66,10 @@ public class CheckoutController {
         } catch (StripeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Failed to create payment intent: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid subscription type: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }

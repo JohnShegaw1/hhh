@@ -1,6 +1,7 @@
 package com.example.stripepaymentapp.controller;
 
 import com.example.stripepaymentapp.entity.Payment;
+import com.example.stripepaymentapp.entity.SubscriptionType;
 import com.example.stripepaymentapp.repository.PaymentRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
@@ -63,11 +64,15 @@ public class WebhookController {
                     .orElse(null);
 
             if (paymentIntent != null) {
-                // Extract email from metadata
+                // Extract email and subscription type from metadata
                 String email = paymentIntent.getMetadata().get("email");
+                String subscriptionTypeStr = paymentIntent.getMetadata().get("subscription_type");
                 
                 // Convert amount from cents to dollars
                 BigDecimal amount = new BigDecimal(paymentIntent.getAmount()).divide(new BigDecimal("100"));
+                
+                // Get subscription type
+                SubscriptionType subscriptionType = SubscriptionType.fromString(subscriptionTypeStr);
                 
                 // Create Payment entity
                 Payment payment = new Payment();
@@ -76,6 +81,7 @@ public class WebhookController {
                 payment.setAmount(amount);
                 payment.setCurrency(paymentIntent.getCurrency());
                 payment.setEmail(email);
+                payment.setSubscriptionType(subscriptionType);
                 payment.setStartDate(LocalDate.now());
                 payment.setEndDate(LocalDate.now().plusDays(30)); // +30 days
                 payment.setCreatedAt(LocalDateTime.now());

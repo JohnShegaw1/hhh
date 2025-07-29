@@ -37,6 +37,10 @@ public class Payment {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_type", nullable = false)
+    private SubscriptionType subscriptionType;
+    
     // Default constructor
     public Payment() {
     }
@@ -44,7 +48,7 @@ public class Payment {
     // Constructor with parameters
     public Payment(String stripePaymentId, String status, BigDecimal amount, 
                    String currency, String email, LocalDate startDate, 
-                   LocalDate endDate, LocalDateTime createdAt) {
+                   LocalDate endDate, LocalDateTime createdAt, SubscriptionType subscriptionType) {
         this.stripePaymentId = stripePaymentId;
         this.status = status;
         this.amount = amount;
@@ -53,6 +57,7 @@ public class Payment {
         this.startDate = startDate;
         this.endDate = endDate;
         this.createdAt = createdAt;
+        this.subscriptionType = subscriptionType;
     }
     
     // Getters and Setters
@@ -128,6 +133,14 @@ public class Payment {
         this.createdAt = createdAt;
     }
     
+    public SubscriptionType getSubscriptionType() {
+        return subscriptionType;
+    }
+    
+    public void setSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
+    }
+    
     @Override
     public String toString() {
         return "Payment{" +
@@ -140,6 +153,7 @@ public class Payment {
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", createdAt=" + createdAt +
+                ", subscriptionType=" + subscriptionType +
                 '}';
     }
 }
